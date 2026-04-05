@@ -1,0 +1,1 @@
+import{E as e,y as t}from"./app-DQfEaPGN.js";import{t as n}from"./_plugin-vue_export-helper-TcpyXLsZ.js";var r={},i={src:`/logo.png`,alt:`Kutch`};function a(n,r){return e(),t(`img`,i)}var o=n(r,[[`render`,a]]);export{o as t};
