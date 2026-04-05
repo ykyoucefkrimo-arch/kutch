@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  body {
+    @apply text-black bg-white;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-black text-white text-[11px] font-bold tracking-[0.18em] uppercase px-8 py-3.5 hover:bg-neutral-800 transition-colors;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center border border-black text-black text-[11px] font-bold tracking-[0.18em] uppercase px-8 py-3.5 hover:bg-black hover:text-white transition-colors;
+  }
+
+  .section-heading {
+    @apply text-[11px] font-bold tracking-[0.2em] uppercase text-black;
+  }
+
+  .divider {
+    @apply h-px flex-1 bg-neutral-200;
+  }
+}
