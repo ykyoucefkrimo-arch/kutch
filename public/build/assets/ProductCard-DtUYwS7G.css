@@ -1,0 +1,1 @@
+.fly-dot[data-v-7f023efb]{animation:.7s cubic-bezier(.25,.46,.45,.94) forwards flyToCart-7f023efb}@keyframes flyToCart-7f023efb{0%{opacity:1;transform:translate(0)scale(1)}80%{opacity:1}to{transform:translate(var(--dx), var(--dy)) scale(.2);opacity:0}}
