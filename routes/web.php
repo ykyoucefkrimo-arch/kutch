@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 // ============================================================
 // PUBLIC SHOP ROUTES
 // ============================================================
-Route::middleware([BlockBannedIp::class])->group(function () {
+Route::group([], function () {
 
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/produits', [ProductController::class, 'index'])->name('products.index');
