@@ -42,8 +42,8 @@ function formatPrice(n) {
 
 <template>
   <AdminLayout>
-    <template #header><h2 class="font-semibold text-gray-700">Antifraude</h2></template>
-    <Head title="Admin — Antifraude" />
+    <template #header><h2 class="font-semibold text-gray-700">Sécurité</h2></template>
+    <Head title="Admin — Sécurité" />
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Commandes suspectes -->

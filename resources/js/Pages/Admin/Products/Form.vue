@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
@@ -8,6 +9,62 @@ const props = defineProps({
 });
 
 const isEdit = !!props.product;
+const storageBase = import.meta.env.VITE_APP_URL ?? '';
+const storageUrl = (path) => `${storageBase}/storage/${path}`;
+
+// Valeurs initiales statiques — ne dépendent pas de la réactivité d'Inertia
+const initMainImage = props.product?.main_image ?? null;
+const initImages = props.product?.images ?? [];
+
+const previewMainImage = ref(null);
+const previewImages = ref([]);
+const deletedMainImage = ref(false);
+const deletedImages = ref([]);
+
+function onMainImageChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  form.main_image = file;
+  if (previewMainImage.value) URL.revokeObjectURL(previewMainImage.value);
+  previewMainImage.value = URL.createObjectURL(file);
+}
+
+function clearMainImage() {
+  if (previewMainImage.value) URL.revokeObjectURL(previewMainImage.value);
+  previewMainImage.value = null;
+  form.main_image = null;
+}
+
+function toggleDeleteMainImage(val) {
+  deletedMainImage.value = val;
+  form.delete_main_image = val;
+}
+
+function toggleDeleteImage(img) {
+  const idx = deletedImages.value.indexOf(img);
+  if (idx === -1) {
+    deletedImages.value.push(img);
+    form.delete_images = [...deletedImages.value];
+  } else {
+    deletedImages.value.splice(idx, 1);
+    form.delete_images = [...deletedImages.value];
+  }
+}
+
+function onImagesChange(e) {
+  const files = Array.from(e.target.files);
+  form.images = files;
+  previewImages.value.forEach(url => URL.revokeObjectURL(url));
+  previewImages.value = files.map(f => URL.createObjectURL(f));
+}
+
+function removeNewImage(i) {
+  URL.revokeObjectURL(previewImages.value[i]);
+  previewImages.value.splice(i, 1);
+  const newFiles = [...form.images];
+  newFiles.splice(i, 1);
+  form.images = newFiles.length ? newFiles : null;
+}
 
 const form = useForm({
   name:              props.product?.name ?? '',
@@ -28,13 +85,21 @@ const form = useForm({
   sort_order:        props.product?.sort_order ?? 0,
   main_image:        null,
   images:            null,
+  delete_main_image: false,
+  delete_images:     [],
 });
+
 
 function submit() {
   if (isEdit) {
-    form.put(route('admin.products.update', props.product.id));
+    form.transform(data => ({ ...data, _method: 'PUT' }))
+        .post(route('admin.products.update', props.product.id), {
+          forceFormData: true,
+        });
   } else {
-    form.post(route('admin.products.store'));
+    form.post(route('admin.products.store'), {
+      forceFormData: true,
+    });
   }
 }
 </script>
@@ -173,18 +238,64 @@ function submit() {
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Image principale</label>
-          <input @change="form.main_image = $event.target.files[0]" type="file" accept="image/*"
+          <input @change="onMainImageChange" type="file" accept="image/*"
             class="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
-          <div v-if="product?.main_image" class="mt-3">
+
+          <!-- Aperçu nouvelle image sélectionnée -->
+          <div v-if="previewMainImage" class="mt-3">
+            <p class="text-xs text-gray-400 mb-1">Nouvelle image :</p>
+            <div class="relative inline-block">
+              <img :src="previewMainImage" class="w-24 h-24 object-cover rounded-lg border-2 border-amber-400" />
+              <button type="button" @click="clearMainImage"
+                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold transition-colors">
+                ×
+              </button>
+            </div>
+          </div>
+
+          <!-- Image actuelle (si pas de nouvelle sélectionnée et pas supprimée) -->
+          <div v-if="initMainImage && !deletedMainImage && !previewMainImage" class="mt-3">
             <p class="text-xs text-gray-400 mb-1">Image actuelle :</p>
-            <img :src="`/storage/${product.main_image}`" class="w-24 h-24 object-cover rounded-lg border border-gray-200" />
+            <div class="relative inline-block">
+              <img :src="storageUrl(initMainImage)" class="w-24 h-24 object-cover rounded-lg border border-gray-200" />
+              <button type="button" @click="toggleDeleteMainImage(true)"
+                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold transition-colors">
+                ×
+              </button>
+            </div>
+          </div>
+          <div v-if="deletedMainImage && !previewMainImage" class="mt-2 flex items-center gap-2">
+            <span class="text-xs text-red-500">Image supprimée</span>
+            <button type="button" @click="toggleDeleteMainImage(false)" class="text-xs text-gray-400 hover:text-gray-600 underline">Annuler</button>
           </div>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Images supplémentaires</label>
-          <input @change="form.images = Array.from($event.target.files)" type="file" accept="image/*" multiple
+          <input @change="onImagesChange" type="file" accept="image/*" multiple
             class="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
+
+          <!-- Aperçu nouvelles images sélectionnées -->
+          <div v-if="previewImages.length" class="mt-3 flex flex-wrap gap-2">
+            <div v-for="(url, i) in previewImages" :key="i" class="relative">
+              <img :src="url" class="w-20 h-20 object-cover rounded-lg border-2 border-amber-400" />
+              <button type="button" @click="removeNewImage(i)"
+                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold transition-colors">
+                ×
+              </button>
+            </div>
+          </div>
+
+          <!-- Images existantes -->
+          <div v-if="initImages.filter(img => !deletedImages.includes(img)).length" class="mt-3 flex flex-wrap gap-2">
+            <div v-for="img in initImages.filter(img => !deletedImages.includes(img))" :key="img" class="relative">
+              <img :src="storageUrl(img)" class="w-20 h-20 object-cover rounded-lg border border-gray-200" />
+              <button type="button" @click="toggleDeleteImage(img)"
+                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold transition-colors">
+                ×
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

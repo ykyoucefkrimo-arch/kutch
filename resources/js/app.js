@@ -1,11 +1,12 @@
 import './bootstrap';
 import '../css/app.css';
 import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, Head, Link } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Kutch';
+const appUrl = import.meta.env.VITE_APP_URL || '';
 
 createInertiaApp({
     title: (title) => `${title} — ${appName}`,
@@ -14,6 +15,9 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .component('Head', Head)
+            .component('Link', Link)
+            .provide('storageUrl', (path) => `${appUrl}/storage/${path}`)
             .mount(el);
     },
     progress: { color: '#8B4513' },

@@ -112,16 +112,39 @@ class ProductController extends Controller
             'sort_order'        => 'integer',
             'main_image'        => 'nullable|image|max:2048',
             'images.*'          => 'nullable|image|max:2048',
+            'delete_images'     => 'nullable',
         ]);
 
-        if ($request->hasFile('main_image')) {
+        // Ne pas écraser main_image si aucun fichier envoyé et pas de suppression demandée
+        if (!$request->hasFile('main_image') && !$request->boolean('delete_main_image')) {
+            unset($data['main_image']);
+        } elseif ($request->boolean('delete_main_image') && $product->main_image) {
+            Storage::disk('public')->delete($product->main_image);
+            $data['main_image'] = null;
+        } elseif ($request->hasFile('main_image')) {
             if ($product->main_image) Storage::disk('public')->delete($product->main_image);
             $data['main_image'] = $request->file('main_image')->store('products', 'public');
         }
+
+        // Conserver les images existantes par défaut
+        unset($data['images']);
+
+        // Supprimer les images individuelles cochées
+        if ($request->filled('delete_images')) {
+            $toDelete = is_array($request->delete_images) ? $request->delete_images : json_decode($request->delete_images, true);
+            $existing = $product->images ?? [];
+            foreach ($toDelete as $path) {
+                Storage::disk('public')->delete($path);
+            }
+            $data['images'] = array_values(array_filter($existing, fn($p) => !in_array($p, $toDelete)));
+        }
+
         if ($request->hasFile('images')) {
-            $data['images'] = collect($request->file('images'))->map(
+            $newImages = collect($request->file('images'))->map(
                 fn($f) => $f->store('products', 'public')
             )->toArray();
+            $existing = $data['images'] ?? ($product->images ?? []);
+            $data['images'] = array_merge($existing, $newImages);
         }
 
         $product->update($data);

@@ -46,6 +46,7 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::post('/produits', [AdminProductController::class, 'store'])->name('products.store');
     Route::get('/produits/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
     Route::put('/produits/{product}', [AdminProductController::class, 'update'])->name('products.update');
+    Route::post('/produits/{product}', [AdminProductController::class, 'update']);
     Route::delete('/produits/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/produits/{id}/restore', [AdminProductController::class, 'restore'])->name('products.restore');
 

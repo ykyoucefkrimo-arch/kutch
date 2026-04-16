@@ -23,12 +23,12 @@ function resetFilters() {
 
 <template>
   <ShopLayout>
-    <Head title="Catalogue" />
+    <Head title="Boutique" />
 
     <!-- Page header -->
     <div class="border-b border-neutral-200">
       <div class="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-        <h1 class="text-4xl sm:text-5xl font-bold uppercase tracking-tight text-black">Catalogue</h1>
+        <h1 class="text-4xl sm:text-5xl font-bold uppercase tracking-tight text-black">Boutique</h1>
         <p class="text-sm text-neutral-400 mt-2 tracking-wide">{{ products.total }} produit(s)</p>
       </div>
     </div>
