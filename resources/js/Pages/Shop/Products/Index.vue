@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/Shop/ProductCard.vue';
@@ -19,6 +19,16 @@ function resetFilters() {
   localFilters.value = {};
   router.get(route('products.index'));
 }
+
+onMounted(() => {
+  // Sur mobile, si un filtre catégorie est actif, scroller vers les produits
+  if (window.innerWidth < 1024 && props.filters?.category) {
+    setTimeout(() => {
+      const el = document.getElementById('products-grid');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+});
 </script>
 
 <template>
@@ -88,7 +98,7 @@ function resetFilters() {
         </aside>
 
         <!-- Products Grid -->
-        <div class="flex-1">
+        <div id="products-grid" class="flex-1">
           <!-- Sort bar -->
           <div class="flex items-center justify-between mb-8 pb-4 border-b border-neutral-200">
             <span class="text-[10px] tracking-widest uppercase text-neutral-400">
