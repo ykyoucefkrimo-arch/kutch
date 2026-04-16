@@ -47,7 +47,7 @@ onMounted(() => {
       <div class="flex flex-col lg:flex-row gap-12">
 
         <!-- Sidebar Filters -->
-        <aside class="lg:w-56 flex-shrink-0 space-y-8">
+        <aside class="lg:w-56 flex-shrink-0 space-y-8 order-2 lg:order-1">
           <!-- Search -->
           <div>
             <h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-black mb-3">Recherche</h3>
@@ -98,7 +98,7 @@ onMounted(() => {
         </aside>
 
         <!-- Products Grid -->
-        <div id="products-grid" class="flex-1">
+        <div id="products-grid" class="flex-1 order-1 lg:order-2">
           <!-- Sort bar -->
           <div class="flex items-center justify-between mb-8 pb-4 border-b border-neutral-200">
             <span class="text-[10px] tracking-widest uppercase text-neutral-400">
