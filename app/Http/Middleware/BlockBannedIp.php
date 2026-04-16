@@ -12,7 +12,7 @@ class BlockBannedIp {
             ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->exists();
         if ($banned) {
-            abort(403, 'Votre accès a été restreint.');
+            return redirect()->route('home')->with('error', 'Vous ne pouvez pas passer de commande depuis cette adresse.');
         }
         return $next($request);
     }
