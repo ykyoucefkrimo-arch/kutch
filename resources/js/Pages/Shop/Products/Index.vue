@@ -21,12 +21,12 @@ function resetFilters() {
 }
 
 onMounted(() => {
-  // Sur mobile, si un filtre catégorie est actif, scroller vers les produits
-  if (window.innerWidth < 1024 && props.filters?.category) {
+  // Sur mobile, toujours scroller vers les produits
+  if (window.innerWidth < 1024) {
     setTimeout(() => {
       const el = document.getElementById('products-grid');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    }, 150);
   }
 });
 </script>
