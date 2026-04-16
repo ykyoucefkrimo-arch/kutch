@@ -22,8 +22,8 @@ Route::middleware([BlockBannedIp::class])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/produits', [ProductController::class, 'index'])->name('products.index');
     Route::get('/produits/{slug}', [ProductController::class, 'show'])->name('products.show');
-    Route::get('/checkout', [ShopOrderController::class, 'checkout'])->name('checkout');
-    Route::post('/commandes', [ShopOrderController::class, 'store'])->name('orders.store');
+    Route::get('/checkout', [ShopOrderController::class, 'checkout'])->middleware('block.banned')->name('checkout');
+    Route::post('/commandes', [ShopOrderController::class, 'store'])->middleware('block.banned')->name('orders.store');
     Route::get('/suivi/{orderNumber}', [ShopOrderController::class, 'track'])->name('orders.track');
 
     // API locations
