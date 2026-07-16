@@ -30,9 +30,9 @@ function addToCart() {
     <!-- Breadcrumb -->
     <div class="border-b border-neutral-200">
       <div class="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex items-center gap-2 text-[10px] tracking-widest uppercase text-neutral-400">
-        <a href="/" class="hover:text-black transition-colors">Accueil</a>
+        <a :href="route('home')" class="hover:text-black transition-colors">Accueil</a>
         <span>·</span>
-        <a href="/produits" class="hover:text-black transition-colors">Catalogue</a>
+        <a :href="route('products.index')" class="hover:text-black transition-colors">Catalogue</a>
         <span>·</span>
         <span class="text-black">{{ product.name }}</span>
       </div>

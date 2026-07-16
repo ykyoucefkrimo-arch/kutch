@@ -41,7 +41,7 @@ function formatPrice(n) {
           <img :src="`${$page.props.appUrl}/logo.png`" alt="Kutch" class="h-6 w-auto" />
           <h1 class="text-[11px] font-bold tracking-[0.2em] uppercase text-black">Suivi de commande</h1>
         </div>
-        <Link href="/" class="text-[10px] tracking-widest uppercase text-neutral-400 hover:text-black transition-colors">
+        <Link :href="route('home')" class="text-[10px] tracking-widest uppercase text-neutral-400 hover:text-black transition-colors">
           ← Accueil
         </Link>
       </div>

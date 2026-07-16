@@ -39,7 +39,7 @@ function submit() {
     <!-- Breadcrumb -->
     <div class="border-b border-neutral-200">
       <div class="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex items-center gap-2 text-[10px] tracking-widest uppercase text-neutral-400">
-        <a href="/" class="hover:text-black transition-colors">Accueil</a>
+        <a :href="route('home')" class="hover:text-black transition-colors">Accueil</a>
         <span>·</span>
         <span class="text-black">Commander</span>
       </div>
@@ -50,7 +50,7 @@ function submit() {
       <!-- Empty cart -->
       <div v-if="isEmpty" class="text-center py-24">
         <p class="text-neutral-400 text-sm tracking-widest uppercase mb-6">Votre panier est vide</p>
-        <a href="/produits"
+        <a :href="route('products.index')"
           class="text-[10px] font-bold tracking-[0.2em] uppercase border border-black text-black px-10 py-3 hover:bg-black hover:text-white transition-colors">
           ← Voir les produits
         </a>

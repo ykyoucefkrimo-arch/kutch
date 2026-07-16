@@ -1,60 +1,126 @@
 <script setup>
-// Settings can be passed as prop or hardcoded for now
+import { reactive, ref, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+
+const page = usePage();
+const settings = computed(() => page.props.settings ?? {});
+const footerImage = computed(() => page.props.footerImage);
+
+// Réseaux sociaux configurables depuis Admin → Paramètres (icône masquée si le
+// lien correspondant est vide, pour ne jamais pointer vers une page inexistante).
+const socials = computed(() => [
+  { key: 'instagram', url: settings.value.instagram, icon: 'instagram' },
+  { key: 'facebook', url: settings.value.facebook, icon: 'facebook' },
+  { key: 'linkedin', url: settings.value.linkedin, icon: 'linkedin' },
+  { key: 'spotify', url: settings.value.spotify, icon: 'spotify' },
+].filter(s => s.url));
+
+const form = reactive({ name: '', email: '', phone: '', message: '' });
+const sending = ref(false);
+const sent = ref(false);
+const error = ref('');
+
+async function submit() {
+  sending.value = true;
+  error.value = '';
+  try {
+    await axios.post(route('contact.store'), form);
+    sent.value = true;
+    form.name = ''; form.email = ''; form.phone = ''; form.message = '';
+    setTimeout(() => { sent.value = false; }, 5000);
+  } catch (e) {
+    error.value = e.response?.data?.message || 'Une erreur est survenue. Réessayez.';
+  } finally {
+    sending.value = false;
+  }
+}
 </script>
 
 <template>
-  <footer id="contact" class="bg-black text-white mt-20">
-    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16">
+  <footer id="contact" class="bg-white text-black mt-20 border-t border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
-        <!-- Brand -->
-        <div class="md:col-span-2">
-          <div class="flex items-center mb-6">
-            <svg class="h-8 w-32" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
-              <g>
-                <path d="M61.35,9.71v32.81h-4.32l-.32-5.46-.02-.37-.19.32c-1.11,1.91-2.63,3.33-4.52,4.2-1.9.87-4.16,1.32-6.72,1.32-2.05,0-4.01-.39-5.82-1.16-1.81-.76-3.29-2.03-4.42-3.75-1.13-1.72-1.7-4-1.7-6.77V9.71h4.96v19.77c0,3.3.73,5.6,2.18,6.85,1.44,1.24,3.49,1.87,6.1,1.87,1.22,0,2.43-.21,3.6-.62,1.17-.41,2.24-1.07,3.18-1.97.94-.89,1.68-2.05,2.23-3.44.54-1.39.82-3.06.82-4.96V9.71h4.96" fill="white" opacity="0.85"></path>
-                <path d="M127.86,0v15.52l.21-.36c1.1-1.91,2.59-3.31,4.42-4.16,1.83-.85,3.87-1.28,6.04-1.28,2.3,0,4.42.44,6.3,1.32,1.87.87,3.39,2.22,4.52,4.01,1.13,1.79,1.7,4.1,1.7,6.87v20.61h-4.96v-18.8c0-3.6-.79-6.14-2.34-7.56-1.55-1.42-3.48-2.13-5.74-2.13-1.56,0-3.15.37-4.71,1.11-1.57.74-2.88,1.96-3.9,3.64-1.02,1.67-1.54,3.92-1.54,6.7v17.05h-4.96V0h4.96" fill="white" opacity="0.85"></path>
-                <path d="M104.57,9.07c.17,0,.35,0,.52,0,.11,0,.22,0,.32.01.18,0,.36.02.54.03.09,0,.18.01.27.02h.04c.05,0,.11,0,.17.02.07,0,.14.01.22.02h0s.07,0,.07,0h.03s.05,0,.05,0h0c.13.01.25.03.38.05.05,0,.11.01.16.02.15.02.3.05.45.08h.02s.01,0,.01,0c1,.19,1.95.47,2.82.84,1.34.57,2.55,1.33,3.6,2.28l.03.03c.15.14.29.28.44.42.06.06.12.12.19.19.11.11.2.21.29.31h0s0,0,0,0h0s.01.01.01.01c.15.17.29.34.43.5.85,1.06,1.58,2.27,2.16,3.61h0s.03.07.03.07l.04.08.03.07.04.09c.02.06.05.11.07.18l.04.1.02.06.03.07c.06.14.11.29.16.44v.04s.02,0,.02,0c.06.17.13.36.19.57.06.19.12.39.17.59l.03.11h-5.09c-.01-.06-.03-.12-.04-.17-.31-1.32-.85-2.47-1.61-3.41-.81-1-1.85-1.77-3.09-2.3-.69-.29-1.45-.5-2.27-.63-.52-.08-1.08-.13-1.65-.15-.16,0-.32,0-.49,0-2.17,0-4.07.5-5.63,1.47-.13.08-.26.17-.39.26l-.02.02-.06.05c-.08.05-.15.11-.22.16-.05.04-.1.08-.15.12-.14.11-.28.23-.42.36-.08.07-.15.14-.22.21l-.1.09-.03.03c-.08.08-.16.17-.24.25-.08.09-.16.18-.23.26-.06.07-.12.15-.19.23h-.02s-.03.06-.03.06c-.49.62-.92,1.35-1.29,2.15-.08.17-.15.35-.24.57-.09.22-.17.47-.26.75-.04.11-.07.22-.1.33-.21.72-.37,1.51-.48,2.35v.08s-.05.3-.05.3c-.02.15-.03.3-.04.44-.02.15-.02.3-.03.45,0,.12-.01.25-.02.39,0,.05,0,.1,0,.15,0,.28-.02.57-.02.87s0,.58.02.86v.07s0,.07,0,.07v.03c0,.13.01.25.02.37,0,.15.02.31.03.45,0,.15.02.3.04.45.01.13.03.26.05.39.11.83.27,1.62.48,2.34.03.11.06.22.1.33.08.27.17.52.26.75.08.22.16.41.24.57.37.81.8,1.54,1.3,2.17.07.09.14.19.22.27.07.09.15.18.23.26.07.08.15.17.23.24l.04.05.03.03s.09.09.12.11c.04.04.08.08.11.11.05.05.11.11.16.15.07.06.13.12.2.16.04.04.08.08.11.1.07.07.15.12.2.15.04.04.08.07.12.09.06.05.11.09.16.12.12.08.25.17.37.25,1.56.98,3.46,1.47,5.63,1.47.17,0,.33,0,.49,0,.57-.02,1.13-.07,1.65-.15.82-.13,1.58-.34,2.27-.63,1.24-.52,2.28-1.3,3.09-2.3.76-.95,1.3-2.09,1.61-3.41.02-.06.03-.12.04-.18h5.09l-.03.12c-.05.2-.11.39-.17.59-.07.21-.13.4-.2.59v.03c-.06.15-.12.29-.18.44-.02.07-.05.13-.08.19l-.02.04c-.02.06-.05.11-.07.17l-.04.09-.03.07-.04.08-.02.05c-.58,1.35-1.32,2.57-2.17,3.63-.13.16-.27.33-.43.5-.1.12-.21.23-.31.34-.06.07-.12.13-.19.19-.15.15-.3.29-.45.43h0s0,.01,0,.01h0c-1.05.95-2.27,1.72-3.61,2.29-.87.37-1.82.65-2.83.84l.02.11-.05-.1c-.18.03-.37.06-.56.09h-.05c-.12.03-.24.04-.36.05h-.04s-.04,0-.04,0c-.1.01-.21.02-.32.03h-.02s0,0,0,0h-.03s-.09.01-.09.01h-.02c-.1.01-.2.02-.31.03-.18.02-.36.03-.54.03-.11,0-.21,0-.32.01-.17,0-.35,0-.52,0-2.99,0-5.69-.67-8.04-1.99-.46-.26-.87-.52-1.27-.81-.3-.22-.56-.42-.79-.61-.27-.23-.51-.44-.74-.66-.47-.46-.92-.96-1.33-1.49-.19-.25-.39-.52-.6-.83-.29-.43-.56-.89-.8-1.35-.11-.21-.25-.49-.39-.79l-.1.05.09-.07-.02-.05c-.06-.12-.11-.25-.16-.38-.06-.14-.11-.28-.18-.44-.07-.17-.13-.35-.19-.53-.05-.13-.09-.27-.14-.42-.05-.15-.09-.31-.14-.46-.07-.23-.13-.49-.21-.82l-.05-.23v-.05c-.12-.51-.21-1.04-.29-1.57-.02-.14-.04-.27-.05-.42-.02-.13-.03-.27-.04-.41-.01-.11-.02-.22-.03-.34-.01-.11-.02-.23-.03-.35-.01-.17-.02-.33-.03-.5v-.05s0-.05,0-.05c0-.1,0-.21-.01-.32,0-.09,0-.19,0-.29,0-.17,0-.34,0-.51s0-.34,0-.51c0-.09,0-.18,0-.28,0-.11,0-.21.01-.32v-.05s0-.05,0-.05c0-.17.02-.33.03-.5,0-.11.02-.23.03-.35,0-.11.02-.23.03-.34,0-.14.02-.27.04-.41.02-.14.03-.28.05-.41.08-.62.19-1.22.33-1.8.02-.1.05-.2.07-.29.05-.19.1-.38.15-.57.04-.16.09-.31.14-.48.04-.14.09-.27.13-.4.06-.19.13-.37.2-.55.12-.29.24-.58.36-.86l-.1-.04.12.02c.05-.11.1-.22.16-.33l.03-.06v-.02s.1-.18.1-.18l.1-.19v-.02c.67-1.24,1.46-2.35,2.38-3.3.11-.12.23-.23.35-.35.22-.22.47-.44.74-.66.25-.21.51-.41.79-.61.4-.29.81-.55,1.27-.81.54-.31,1.12-.58,1.71-.82.2-.08.39-.15.59-.23.47-.17.95-.31,1.47-.44.33-.08.67-.15,1.02-.22,1.02-.19,2.11-.28,3.24-.28" fill="white" opacity="0.85"></path>
-                <path d="M33.11,0l-16.84,17.25-.06.07.05.08,17.1,25.13h-5.95l-14.63-21.46-.08-.11-.09.1-7.61,7.78-.03.03v13.66H0V0h4.96v22.18l.19-.2L26.62,0h6.49" fill="white" opacity="0.85"></path>
-                <path d="M76.91,0v9.71h9.85v4.25h-9.85v19.09c0,1.62.47,2.85,1.4,3.65.92.79,2.12,1.19,3.57,1.19,1.26,0,2.37-.22,3.29-.66.58-.28,1.15-.63,1.68-1.05l2.4,3.53c-.96.86-2.12,1.55-3.42,2.05-1.34.51-2.91.77-4.66.77-1.62,0-3.15-.29-4.56-.87-1.4-.57-2.52-1.49-3.35-2.74-.83-1.25-1.27-2.92-1.31-4.96V13.96h-6.48v-4.25h6.48V0h4.96" fill="white" opacity="0.85"></path>
-              </g>
-            </svg>
+      <!-- Formulaire de contact -->
+      <div>
+        <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 mb-3">
+          Agissez aujourd'hui pour un meilleur espace demain
+        </p>
+        <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-tight mb-6">
+          Contact — Prenez un rendez-vous
+        </h2>
+
+        <p class="text-sm text-neutral-600 mb-6">
+          Vous pouvez également nous écrire directement par mail :<br>
+          <a v-if="settings.shop_email" :href="`mailto:${settings.shop_email}`" class="font-bold text-black hover:underline">{{ settings.shop_email }}</a>
+          <span v-if="settings.shop_email && settings.shop_phone"> ou appelez-nous au </span>
+          <a v-if="settings.shop_phone" :href="`tel:${settings.shop_phone.replace(/\s/g, '')}`" class="font-bold text-black hover:underline">{{ settings.shop_phone }}</a>.
+        </p>
+        <p v-if="settings.shop_address" class="text-sm font-bold text-black mb-8">{{ settings.shop_address }}</p>
+
+        <form @submit.prevent="submit" class="space-y-5 max-w-md">
+          <div>
+            <label class="block text-[10px] tracking-[0.18em] uppercase font-semibold text-neutral-500 mb-2">Nom</label>
+            <input v-model="form.name" type="text" required placeholder="Entrez votre nom complet"
+              class="w-full border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-black transition-colors" />
           </div>
-          <p class="text-neutral-400 text-sm leading-relaxed max-w-xs">
-            Artisan ébéniste — Meubles sur mesure fabriqués avec passion pour sublimer votre intérieur.
-          </p>
-        </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.18em] uppercase font-semibold text-neutral-500 mb-2">Email</label>
+            <input v-model="form.email" type="email" required placeholder="Entrez votre adresse email"
+              class="w-full border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-black transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.18em] uppercase font-semibold text-neutral-500 mb-2">Téléphone</label>
+            <input v-model="form.phone" type="tel" placeholder="Entrez votre numéro de téléphone"
+              class="w-full border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-black transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[10px] tracking-[0.18em] uppercase font-semibold text-neutral-500 mb-2">Message</label>
+            <textarea v-model="form.message" required rows="4" placeholder="Décrivez-nous votre projet..."
+              class="w-full border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-black transition-colors resize-none"></textarea>
+          </div>
 
-        <!-- Navigation -->
-        <div>
-          <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-5">Navigation</h4>
-          <ul class="space-y-3">
-            <li><a href="/" class="text-sm text-neutral-300 hover:text-white transition-colors">Accueil</a></li>
-            <li><a href="/produits" class="text-sm text-neutral-300 hover:text-white transition-colors">Catalogue</a></li>
-            <li><a href="#contact" class="text-sm text-neutral-300 hover:text-white transition-colors">Contact</a></li>
-          </ul>
-        </div>
+          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
+          <p v-if="sent" class="text-green-600 text-xs font-bold">✓ Message envoyé — nous vous répondrons rapidement.</p>
 
-        <!-- Contact -->
-        <div>
-          <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-5">Contact</h4>
-          <ul class="space-y-3 text-sm text-neutral-300">
-            <li>+213 555 000 000</li>
-            <li>Algérie — 58 wilayas</li>
-            <li class="text-neutral-500 text-xs pt-2">Paiement à la livraison uniquement</li>
-          </ul>
-        </div>
+          <button type="submit" :disabled="sending"
+            class="w-full bg-[#12172b] hover:bg-black disabled:opacity-50 text-white text-[11px] font-bold tracking-[0.2em] uppercase py-4 rounded-lg transition-colors">
+            {{ sending ? 'Envoi...' : 'Prenez un rendez-vous' }}
+          </button>
+        </form>
       </div>
 
-      <!-- Bottom bar -->
-      <div class="border-t border-neutral-900 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-[11px] tracking-wider text-neutral-600">
-          © {{ new Date().getFullYear() }} Kutch — Tous droits réservés
-        </p>
-        <p class="text-[11px] tracking-wider text-neutral-600 uppercase">
-          Artisanat Algérien
-        </p>
+      <!-- Image (1er hero slide actif, configurable depuis Admin → Images Hero) -->
+      <div v-if="footerImage" class="w-full aspect-[4/3] lg:aspect-auto lg:h-full rounded-2xl overflow-hidden bg-neutral-100">
+        <img :src="footerImage" alt="" class="w-full h-full object-cover" />
       </div>
+    </div>
+
+    <!-- Réseaux sociaux -->
+    <div v-if="socials.length" class="flex justify-center gap-4 pb-10">
+      <a v-for="s in socials" :key="s.key" :href="s.url" target="_blank" rel="noopener noreferrer"
+        class="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-600 hover:text-black hover:border-black transition-colors">
+        <svg v-if="s.icon === 'instagram'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+        </svg>
+        <svg v-else-if="s.icon === 'facebook'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M15 3h-2a5 5 0 0 0-5 5v2H6v4h2v7h4v-7h3l1-4h-4V8a1 1 0 0 1 1-1h3z" />
+        </svg>
+        <svg v-else-if="s.icon === 'linkedin'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="7" y1="10" x2="7" y2="16" /><circle cx="7" cy="7" r="0.5" fill="currentColor" />
+          <path d="M11 16v-4a2 2 0 0 1 4 0v4" /><line x1="11" y1="10" x2="11" y2="16" />
+        </svg>
+        <svg v-else-if="s.icon === 'spotify'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="9" /><path d="M7.5 10c3-1 6.5-.5 9 1M8 13.5c2.5-.8 5-.4 7 .8M8.5 16.5c2-.6 4-.3 5.5.6" stroke-linecap="round" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-neutral-100 py-6">
+      <p class="text-center text-[11px] tracking-wider text-neutral-400">
+        © {{ new Date().getFullYear() }} {{ settings.shop_name || 'Kutch' }} — Tous droits réservés
+      </p>
     </div>
   </footer>
 </template>

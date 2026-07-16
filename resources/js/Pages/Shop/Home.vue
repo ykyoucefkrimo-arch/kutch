@@ -135,8 +135,8 @@ onUnmounted(() => {
 
     <!-- New Products -->
     <section v-if="newProducts && newProducts.length" class="border-b border-neutral-200">
-      <div class="max-w-7xl mx-auto px-6 lg:px-10 py-14">
-        <div class="flex items-center mb-10">
+      <div class="w-[90%] mx-auto py-14">
+        <div class="flex items-center mb-10 ml-[5%]">
           <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase text-black">Nouveautés</h2>
           <div class="h-px flex-1 bg-neutral-300 ml-8"></div>
         </div>
@@ -148,7 +148,7 @@ onUnmounted(() => {
 
     <!-- Categories -->
     <section v-if="categories && categories.length">
-      <div class="max-w-7xl mx-auto px-6 lg:px-10 py-14">
+      <div class="w-[90%] mx-auto py-14">
         <h2 class="text-center text-sm font-bold text-black mb-10">Que recherchez-vous ?</h2>
 
         <div class="relative">

@@ -44,11 +44,11 @@ function formatPrice(n) {
       </div>
 
       <div class="flex flex-col gap-3">
-        <a :href="`/suivi/${orderNumber}`"
+        <a :href="route('orders.track', orderNumber)"
           class="block w-full text-center bg-black text-white text-[11px] font-bold tracking-[0.2em] uppercase py-4 hover:bg-neutral-800 transition-colors">
           Suivre ma commande
         </a>
-        <a href="/"
+        <a :href="route('home')"
           class="block w-full text-center border border-neutral-300 text-black text-[11px] font-bold tracking-[0.2em] uppercase py-4 hover:border-black transition-colors">
           Retour à l'accueil
         </a>
