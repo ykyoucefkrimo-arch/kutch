@@ -20,7 +20,10 @@ class Order extends Model {
     public function logs() { return $this->hasMany(OrderLog::class)->orderBy('created_at','desc'); }
     public static function generateOrderNumber(): string {
         $year = date('Y');
-        $last = static::whereYear('created_at', $year)->max('id') ?? 0;
+        // withTrashed() : les commandes supprimées (tests, annulations) doivent quand même
+        // compter dans la numerotation, sinon le compteur repart de 1 et entre en collision
+        // avec un order_number deja utilise (contrainte unique en base).
+        $last = static::withTrashed()->whereYear('created_at', $year)->max('id') ?? 0;
         return 'EB-' . $year . '-' . str_pad($last + 1, 5, '0', STR_PAD_LEFT);
     }
     public function getStatusLabelAttribute(): string {
