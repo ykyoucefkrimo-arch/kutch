@@ -10,7 +10,11 @@ export function useLocations() {
     async function fetchWilayas() {
         loadingWilayas.value = true;
         try {
-            const { data } = await axios.get('/api/wilayas');
+            // route() (Ziggy) résout le bon préfixe quel que soit l'environnement
+            // (sous-dossier local /ebeniste-shop/public, /boutique en prod, etc.) —
+            // un chemin absolu codé en dur ('/api/wilayas') casse dès que l'app
+            // n'est pas servie à la racine du domaine.
+            const { data } = await axios.get(route('api.wilayas'));
             wilayas.value = data;
         } finally {
             loadingWilayas.value = false;
@@ -22,7 +26,7 @@ export function useLocations() {
         if (!wilayaId) return;
         loadingCommunes.value = true;
         try {
-            const { data } = await axios.get(`/api/communes/${wilayaId}`);
+            const { data } = await axios.get(route('api.communes', wilayaId));
             communes.value = data;
         } finally {
             loadingCommunes.value = false;

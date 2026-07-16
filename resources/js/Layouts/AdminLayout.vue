@@ -4,6 +4,10 @@ import { Link } from '@inertiajs/vue3';
 
 const mobileOpen = ref(false);
 
+function safeRoute(name) {
+  try { return route(name); } catch { return '#'; }
+}
+
 const navItems = [
   {
     label: 'Tableau de bord', route: 'admin.dashboard',
@@ -18,12 +22,20 @@ const navItems = [
     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'
   },
   {
+    label: 'Nouveautés', route: 'admin.new-arrivals.index',
+    icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'
+  },
+  {
     label: 'Catégories', route: 'admin.categories.index',
     icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'
   },
   {
     label: 'Sécurité', route: 'admin.antifraud.index',
     icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
+  },
+  {
+    label: 'Images Hero', route: 'admin.hero.index',
+    icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
   },
   {
     label: 'Paramètres', route: 'admin.settings.index',
@@ -52,7 +64,7 @@ const navItems = [
       </div>
       <nav class="flex-1 py-4 space-y-0.5 px-2 overflow-y-auto">
         <Link v-for="item in navItems" :key="item.route"
-          :href="route(item.route)"
+          :href="safeRoute(item.route)"
           :class="[
             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
             $page.url.startsWith('/admin/' + item.route.replace('admin.','').replace('.index','').replace('.dashboard',''))
@@ -102,7 +114,7 @@ const navItems = [
 
       <!-- Mobile nav -->
       <div v-if="mobileOpen" class="lg:hidden bg-gray-900 text-white px-3 py-3 space-y-0.5">
-        <Link v-for="item in navItems" :key="item.route" :href="route(item.route)"
+        <Link v-for="item in navItems" :key="item.route" :href="safeRoute(item.route)"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white"
           @click="mobileOpen = false">
           {{ item.label }}

@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+
+const page = usePage();
+const storageUrl = (path) => `${page.props.storageUrl}/${path}`;
 
 const props = defineProps({
   products: Object,
@@ -76,7 +79,7 @@ function formatPrice(n) {
               :class="['hover:bg-gray-50 transition-colors', product.deleted_at ? 'opacity-60' : '']">
               <td class="px-4 py-3">
                 <div class="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
-                  <img v-if="product.main_image" :src="`/storage/${product.main_image}`"
+                  <img v-if="product.main_image" :src="storageUrl(product.main_image)"
                     :alt="product.name" class="w-full h-full object-cover" />
                   <div v-else class="w-full h-full flex items-center justify-center text-gray-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

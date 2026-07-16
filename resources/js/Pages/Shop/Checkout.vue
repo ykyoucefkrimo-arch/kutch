@@ -4,8 +4,10 @@ import { useForm } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import WilayaCommuneSelect from '@/Components/Shop/WilayaCommuneSelect.vue';
 import { useCart } from '@/Composables/useCart';
+import { useStorage } from '@/Composables/useStorage';
 
 const { items, total, formatPrice, clearCart } = useCart();
+const { storageUrl } = useStorage();
 
 const form = useForm({
   customer_name: '',
@@ -137,7 +139,7 @@ function submit() {
             <div class="space-y-4 mb-6">
               <div v-for="item in items" :key="item.product_id" class="flex items-start gap-3">
                 <div class="w-14 h-14 bg-neutral-100 overflow-hidden flex-shrink-0">
-                  <img v-if="item.main_image" :src="`/storage/${item.main_image}`"
+                  <img v-if="item.main_image" :src="storageUrl(item.main_image)"
                     :alt="item.name" class="w-full h-full object-cover" />
                 </div>
                 <div class="flex-1 min-w-0">

@@ -2,11 +2,13 @@
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useCart } from '@/Composables/useCart';
+import { useStorage } from '@/Composables/useStorage';
 
 defineProps({ open: Boolean });
 defineEmits(['close']);
 
 const { items, total, removeItem, updateQty, formatPrice } = useCart();
+const { storageUrl } = useStorage();
 const isEmpty = computed(() => items.value.length === 0);
 </script>
 
@@ -47,7 +49,7 @@ const isEmpty = computed(() => items.value.length === 0);
         <div v-for="item in items" :key="item.product_id"
           class="flex items-start gap-4 px-6 py-4">
           <div class="w-16 h-16 bg-neutral-100 flex-shrink-0 overflow-hidden">
-            <img v-if="item.main_image" :src="`/storage/${item.main_image}`"
+            <img v-if="item.main_image" :src="storageUrl(item.main_image)"
               :alt="item.name" class="w-full h-full object-cover" />
           </div>
           <div class="flex-1 min-w-0">

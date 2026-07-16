@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\HeroSlide;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -44,11 +45,16 @@ class ProductController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
         $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
+        $heroSlides = HeroSlide::active()
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($s) => array_merge($s->toArray(), ['image_url' => $s->image_url]));
 
         return Inertia::render('Shop/Products/Index', [
-            'products' => $products,
+            'products'   => $products,
             'categories' => $categories,
-            'filters' => $request->only(['category', 'search', 'min_price', 'max_price', 'filter', 'sort']),
+            'heroSlides' => $heroSlides,
+            'filters'    => $request->only(['category', 'search', 'min_price', 'max_price', 'filter', 'sort']),
         ]);
     }
 
@@ -66,9 +72,15 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
+        $heroSlides = HeroSlide::active()
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($s) => array_merge($s->toArray(), ['image_url' => $s->image_url]));
+
         return Inertia::render('Shop/Products/Show', [
-            'product' => $product,
+            'product'        => $product,
             'relatedProducts' => $related,
+            'heroSlides'     => $heroSlides,
         ]);
     }
 }

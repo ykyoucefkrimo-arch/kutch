@@ -5,13 +5,24 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({ categories: Array });
 
-const showForm = ref(false);
+const showForm    = ref(false);
 const editingCategory = ref(null);
+const imagePreview    = ref(null);
 
-const form = useForm({ name: '', description: '', is_active: true, sort_order: 0 });
+const form = useForm({
+  name: '', description: '', is_active: true, sort_order: 0, image: null,
+});
+
+function onImageChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  form.image = file;
+  imagePreview.value = URL.createObjectURL(file);
+}
 
 function openCreate() {
   editingCategory.value = null;
+  imagePreview.value = null;
   form.reset();
   form.is_active = true;
   showForm.value = true;
@@ -19,27 +30,33 @@ function openCreate() {
 
 function openEdit(cat) {
   editingCategory.value = cat;
-  form.name = cat.name;
+  form.name        = cat.name;
   form.description = cat.description ?? '';
-  form.is_active = cat.is_active;
-  form.sort_order = cat.sort_order;
+  form.is_active   = cat.is_active;
+  form.sort_order  = cat.sort_order;
+  form.image       = null;
+  imagePreview.value = cat.image_url ?? null;
   showForm.value = true;
 }
 
 function closeForm() {
   showForm.value = false;
   editingCategory.value = null;
+  imagePreview.value = null;
   form.reset();
 }
 
 function submit() {
   if (editingCategory.value) {
-    form.put(route('admin.categories.update', editingCategory.value.id), {
-      onSuccess: () => closeForm()
-    });
+    form.transform(data => ({ ...data, _method: 'PUT' }))
+        .post(route('admin.categories.update', editingCategory.value.id), {
+          forceFormData: true,
+          onSuccess: () => closeForm(),
+        });
   } else {
     form.post(route('admin.categories.store'), {
-      onSuccess: () => closeForm()
+      forceFormData: true,
+      onSuccess: () => closeForm(),
     });
   }
 }
@@ -86,6 +103,27 @@ function deleteCategory(id) {
                 :class="form.errors.name ? 'border-red-400' : ''" />
               <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
             </div>
+
+            <!-- Image upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Image</label>
+              <div class="flex items-start gap-4">
+                <div class="w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden flex items-center justify-center bg-gray-50 shrink-0">
+                  <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover" />
+                  <svg v-else class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <input type="file" accept="image/*" @change="onImageChange"
+                    class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer" />
+                  <p class="text-xs text-gray-400 mt-1">JPG, PNG, WebP — max 2 Mo</p>
+                </div>
+              </div>
+              <p v-if="form.errors.image" class="text-red-500 text-xs mt-1">{{ form.errors.image }}</p>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea v-model="form.description" rows="2"
@@ -124,6 +162,7 @@ function deleteCategory(id) {
         <table class="w-full text-sm">
           <thead class="bg-gray-50">
             <tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Image</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Catégorie</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Slug</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Produits</th>
@@ -134,9 +173,18 @@ function deleteCategory(id) {
           </thead>
           <tbody class="divide-y divide-gray-50">
             <tr v-if="!categories?.length">
-              <td colspan="6" class="px-4 py-10 text-center text-gray-400">Aucune catégorie</td>
+              <td colspan="7" class="px-4 py-10 text-center text-gray-400">Aucune catégorie</td>
             </tr>
             <tr v-for="cat in categories" :key="cat.id" class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3">
+                <img v-if="cat.image_url" :src="cat.image_url" class="w-12 h-12 object-cover rounded-lg" />
+                <div v-else class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01"/>
+                  </svg>
+                </div>
+              </td>
               <td class="px-4 py-3 font-medium text-gray-800">{{ cat.name }}</td>
               <td class="px-4 py-3 text-gray-400 text-xs font-mono">{{ cat.slug }}</td>
               <td class="px-4 py-3 text-gray-600">{{ cat.products_count }}</td>

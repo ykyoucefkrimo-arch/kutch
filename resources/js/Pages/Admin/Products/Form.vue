@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm, Link } from '@inertiajs/vue3';
+import { useForm, Link, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -9,8 +9,7 @@ const props = defineProps({
 });
 
 const isEdit = !!props.product;
-const storageBase = import.meta.env.VITE_APP_URL ?? '';
-const storageUrl = (path) => `${storageBase}/storage/${path}`;
+const storageUrl = (path) => `${usePage().props.storageUrl}/${path}`;
 
 // Valeurs initiales statiques — ne dépendent pas de la réactivité d'Inertia
 const initMainImage = props.product?.main_image ?? null;

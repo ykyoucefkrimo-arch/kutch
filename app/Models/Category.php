@@ -8,5 +8,12 @@ class Category extends Model {
     use HasFactory, SoftDeletes;
     protected $fillable = ['name','slug','description','image','is_active','sort_order'];
     protected $casts = ['is_active'=>'boolean'];
+    protected $appends = ['image_url'];
+
     public function products() { return $this->hasMany(Product::class); }
+
+    public function getImageUrlAttribute(): ?string {
+        if (!$this->image) return null;
+        return asset('storage/' . $this->image);
+    }
 }

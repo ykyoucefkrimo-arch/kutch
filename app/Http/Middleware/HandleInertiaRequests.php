@@ -38,6 +38,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error'   => $request->session()->get('error'),
             ],
+            'storageUrl' => rtrim(config('app.url'), '/') . '/storage',
+            'appUrl'     => rtrim(config('app.url'), '/'),
         ];
     }
 }

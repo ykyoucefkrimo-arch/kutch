@@ -1,3 +1,8 @@
+<script setup>
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
+</script>
+
 <template>
-    <img src="/logo.png" alt="Kutch" />
+    <img :src="`${page.props.appUrl}/logo.png`" alt="Kutch" />
 </template>

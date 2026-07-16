@@ -16,7 +16,7 @@ function formatPrice(n) {
 
       <!-- Logo Kutch -->
       <div class="mb-10 flex items-center gap-3">
-        <img src="/logo.png" alt="Kutch" class="h-8 w-auto" />
+        <img :src="`${$page.props.appUrl}/logo.png`" alt="Kutch" class="h-8 w-auto" />
         <span class="text-base font-bold tracking-[0.22em] text-black uppercase">Kutch</span>
       </div>
 

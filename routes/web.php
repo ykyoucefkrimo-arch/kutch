@@ -3,6 +3,7 @@
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
+use App\Http\Controllers\Shop\ContactController;
 use App\Http\Controllers\Shop\LocationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\AntifraudController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\HeroSlideController;
+use App\Http\Controllers\Admin\NewArrivalController;
 use App\Http\Middleware\BlockBannedIp;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +28,7 @@ Route::group([], function () {
     Route::get('/checkout', [ShopOrderController::class, 'checkout'])->middleware('block.banned')->name('checkout');
     Route::post('/commandes', [ShopOrderController::class, 'store'])->middleware('block.banned')->name('orders.store');
     Route::get('/suivi/{orderNumber}', [ShopOrderController::class, 'track'])->name('orders.track');
+    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
     // API locations
     Route::prefix('api')->name('api.')->group(function () {
@@ -71,6 +75,19 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     // Paramètres
     Route::get('/parametres', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('/parametres', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Hero slides
+    Route::get('/hero', [HeroSlideController::class, 'index'])->name('hero.index');
+    Route::post('/hero', [HeroSlideController::class, 'store'])->name('hero.store');
+    Route::post('/hero/reorder', [HeroSlideController::class, 'reorder'])->name('hero.reorder');
+    Route::post('/hero/{heroSlide}', [HeroSlideController::class, 'update'])->name('hero.update');
+    Route::patch('/hero/{heroSlide}/toggle', [HeroSlideController::class, 'toggleActive'])->name('hero.toggle');
+    Route::delete('/hero/{heroSlide}', [HeroSlideController::class, 'destroy'])->name('hero.destroy');
+
+    // Nouveautés (max 3 produits mis en avant sur la page d'accueil)
+    Route::get('/nouveautes', [NewArrivalController::class, 'index'])->name('new-arrivals.index');
+    Route::post('/nouveautes', [NewArrivalController::class, 'store'])->name('new-arrivals.store');
+    Route::delete('/nouveautes/{product}', [NewArrivalController::class, 'destroy'])->name('new-arrivals.destroy');
 });
 
 require __DIR__.'/auth.php';

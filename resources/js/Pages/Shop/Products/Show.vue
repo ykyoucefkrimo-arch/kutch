@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/Shop/ProductCard.vue';
 import { useCart } from '@/Composables/useCart';
+import { useStorage } from '@/Composables/useStorage';
 
 const props = defineProps({
   product: Object,
@@ -10,6 +11,7 @@ const props = defineProps({
 });
 
 const { addItem, formatPrice } = useCart();
+const { storageUrl } = useStorage();
 const qty = ref(1);
 const activeImage = ref(props.product.main_image);
 const added = ref(false);
@@ -42,7 +44,7 @@ function addToCart() {
         <!-- Images -->
         <div>
           <div class="aspect-square bg-neutral-100 overflow-hidden mb-3">
-            <img v-if="activeImage" :src="`/storage/${activeImage}`" :alt="product.name"
+            <img v-if="activeImage" :src="storageUrl(activeImage)" :alt="product.name"
               class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center bg-neutral-100">
               <svg class="w-20 h-20 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,12 +58,12 @@ function addToCart() {
             <button v-if="product.main_image" @click="activeImage = product.main_image"
               :class="['w-16 h-16 overflow-hidden border-2 transition-colors',
                 activeImage === product.main_image ? 'border-black' : 'border-transparent hover:border-neutral-300']">
-              <img :src="`/storage/${product.main_image}`" class="w-full h-full object-cover" />
+              <img :src="storageUrl(product.main_image)" class="w-full h-full object-cover" />
             </button>
             <button v-for="img in product.images" :key="img" @click="activeImage = img"
               :class="['w-16 h-16 overflow-hidden border-2 transition-colors',
                 activeImage === img ? 'border-black' : 'border-transparent hover:border-neutral-300']">
-              <img :src="`/storage/${img}`" class="w-full h-full object-cover" />
+              <img :src="storageUrl(img)" class="w-full h-full object-cover" />
             </button>
           </div>
         </div>

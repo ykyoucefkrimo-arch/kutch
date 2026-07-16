@@ -38,7 +38,7 @@ function formatPrice(n) {
     <div class="border-b border-neutral-200">
       <div class="max-w-3xl mx-auto px-6 lg:px-10 py-8 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <img src="/logo.png" alt="Kutch" class="h-6 w-auto" />
+          <img :src="`${$page.props.appUrl}/logo.png`" alt="Kutch" class="h-6 w-auto" />
           <h1 class="text-[11px] font-bold tracking-[0.2em] uppercase text-black">Suivi de commande</h1>
         </div>
         <Link href="/" class="text-[10px] tracking-widest uppercase text-neutral-400 hover:text-black transition-colors">

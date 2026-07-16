@@ -1,22 +1,137 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/Shop/ProductCard.vue';
-import { useCart } from '@/Composables/useCart';
-
-defineProps({
+const props = defineProps({
+  heroSlides: Array,
   featuredProducts: Array,
   categories: Array,
   newProducts: Array,
 });
 
-const { formatPrice } = useCart();
+// ── Slider ────────────────────────────────────────────────────
+const currentSlide = ref(0);
+let autoplayTimer = null;
+
+// ── Category carousel ─────────────────────────────────────────
+const catTrack  = ref(null);
+const catIndex  = ref(0);
+const catVisible = ref(window.innerWidth < 640 ? 2 : 5);
+
+// Nouveautés : 2 produits sur téléphone (< 768px), 3 sur les écrans plus grands.
+const newLimit = ref(window.innerWidth < 768 ? 2 : 3);
+
+function onCatResize() {
+  catVisible.value = window.innerWidth < 640 ? 2 : 5;
+  catIndex.value = 0;
+  newLimit.value = window.innerWidth < 768 ? 2 : 3;
+}
+
+function catCanPrev() { return catIndex.value > 0; }
+function catCanNext() {
+  if (!props.categories) return false;
+  return catIndex.value < props.categories.length - catVisible.value;
+}
+function catPrev() { if (catCanPrev()) catIndex.value--; }
+function catNext() { if (catCanNext()) catIndex.value++; }
+
+const totalSlides = () => props.heroSlides?.length ?? 0;
+
+function goTo(index) {
+  currentSlide.value = (index + totalSlides()) % totalSlides();
+  resetAutoplay();
+}
+function prev() { goTo(currentSlide.value - 1); }
+function next() { goTo(currentSlide.value + 1); }
+
+function resetAutoplay() {
+  clearInterval(autoplayTimer);
+  if (totalSlides() > 1) {
+    autoplayTimer = setInterval(() => {
+      currentSlide.value = (currentSlide.value + 1) % totalSlides();
+    }, 5000);
+  }
+}
+
+onMounted(() => {
+  resetAutoplay();
+  window.addEventListener('resize', onCatResize, { passive: true });
+});
+onUnmounted(() => {
+  clearInterval(autoplayTimer);
+  window.removeEventListener('resize', onCatResize);
+});
 </script>
 
 <template>
   <ShopLayout>
     <Head title="Accueil" />
 
+    <!-- Hero Slider — remonte derrière la navbar fixe (-72px du spacer ShopLayout) -->
+    <section v-if="heroSlides && heroSlides.length"
+      class="relative w-full overflow-hidden bg-neutral-100 -mt-[72px]"
+      style="height: clamp(400px, 90vh, 900px);">
+
+      <!-- Slides -->
+      <div class="absolute inset-0">
+        <transition-group name="hero-fade" tag="div" class="relative w-full h-full">
+          <div v-for="(slide, index) in heroSlides" :key="slide.id"
+            v-show="index === currentSlide"
+            class="absolute inset-0">
+            <img :src="slide.image_url" :alt="slide.caption ?? ''"
+              class="w-full h-full object-cover" />
+            <!-- Overlay léger en bas -->
+            <div class="absolute inset-x-0 bottom-0 h-40
+              bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          </div>
+        </transition-group>
+      </div>
+
+      <!-- Légende -->
+      <div v-if="heroSlides[currentSlide]?.caption || heroSlides[currentSlide]?.subtitle"
+        class="absolute bottom-6 left-6 lg:left-10 text-white">
+        <component
+          :is="heroSlides[currentSlide]?.link ? Link : 'div'"
+          :href="heroSlides[currentSlide]?.link ?? undefined"
+          class="group">
+          <p v-if="heroSlides[currentSlide]?.caption"
+            class="text-xs font-bold tracking-[0.2em] uppercase opacity-90">
+            {{ heroSlides[currentSlide].caption }}
+          </p>
+          <p v-if="heroSlides[currentSlide]?.subtitle"
+            class="text-[11px] tracking-widest uppercase opacity-60 mt-0.5">
+            {{ heroSlides[currentSlide].subtitle }}
+          </p>
+        </component>
+      </div>
+
+      <!-- Flèches (seulement si > 1 slide) -->
+      <template v-if="heroSlides.length > 1">
+        <button @click="prev" aria-label="Slide précédente"
+          class="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center
+            text-white/70 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <button @click="next" aria-label="Slide suivante"
+          class="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center
+            text-white/70 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <!-- Indicateurs (points) -->
+        <div class="absolute bottom-6 right-6 lg:right-10 flex gap-1.5">
+          <button v-for="(_, i) in heroSlides" :key="i" @click="goTo(i)"
+            :aria-label="`Slide ${i + 1}`"
+            class="w-1.5 h-1.5 rounded-full transition-all"
+            :class="i === currentSlide ? 'bg-white w-4' : 'bg-white/40 hover:bg-white/70'" />
+        </div>
+      </template>
+    </section>
 
     <!-- New Products -->
     <section v-if="newProducts && newProducts.length" class="border-b border-neutral-200">
@@ -25,21 +140,61 @@ const { formatPrice } = useCart();
           <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase text-black">Nouveautés</h2>
           <div class="h-px flex-1 bg-neutral-300 ml-8"></div>
         </div>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <ProductCard v-for="product in newProducts" :key="product.id" :product="product" />
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+          <ProductCard v-for="product in newProducts.slice(0, newLimit)" :key="product.id" :product="product" />
         </div>
       </div>
     </section>
 
     <!-- Categories -->
-    <section v-if="categories && categories.length" class="border-b border-neutral-200">
-      <div class="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-        <div class="flex flex-wrap gap-4 justify-center">
-          <Link v-for="cat in categories" :key="cat.id"
-            :href="route('products.index', { category: cat.slug })"
-            class="text-[10px] font-bold tracking-[0.15em] uppercase text-neutral-500 hover:text-black transition-colors">
-            {{ cat.name }}
-          </Link>
+    <section v-if="categories && categories.length">
+      <div class="max-w-7xl mx-auto px-6 lg:px-10 py-14">
+        <h2 class="text-center text-sm font-bold text-black mb-10">Que recherchez-vous ?</h2>
+
+        <div class="relative">
+          <!-- Flèche gauche -->
+          <button v-if="catCanPrev()" @click="catPrev"
+            class="absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white border border-neutral-200 rounded-full flex items-center justify-center shadow-sm hover:border-black transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+
+          <!-- Track -->
+          <div ref="catTrack" class="overflow-hidden">
+            <div class="flex transition-transform duration-500 ease-in-out gap-4"
+                 :style="{ transform: `translateX(calc(-${catIndex} * (100% / ${catVisible}) - ${catIndex} * (1rem / ${catVisible})))` }">
+              <Link v-for="cat in categories" :key="cat.id"
+                    :href="route('products.index', { category: cat.slug })"
+                    class="group shrink-0 flex flex-col"
+                    :style="{ width: `calc((100% - ${catVisible - 1}rem) / ${catVisible})` }">
+                <!-- Image -->
+                <div class="aspect-[3/4] overflow-hidden bg-neutral-100 mb-3">
+                  <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name"
+                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                </div>
+                <!-- Nom + séparateur -->
+                <p class="text-[11px] font-bold tracking-[0.1em] uppercase text-black group-hover:text-neutral-500 transition-colors">
+                  {{ cat.name }}
+                </p>
+                <div class="mt-2 h-px bg-neutral-200 w-full"></div>
+              </Link>
+            </div>
+          </div>
+
+          <!-- Flèche droite -->
+          <button v-if="catCanNext()" @click="catNext"
+            class="absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white border border-neutral-200 rounded-full flex items-center justify-center shadow-sm hover:border-black transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
         </div>
       </div>
     </section>
@@ -83,7 +238,7 @@ const { formatPrice } = useCart();
 
         <!-- Logo mark décoratif -->
         <div class="flex justify-center lg:justify-start">
-          <img src="/logo.png" alt="" class="w-20 h-20 object-contain opacity-10" />
+          <img :src="`${$page.props.appUrl}/logo.png`" alt="" class="w-20 h-20 object-contain opacity-10" />
         </div>
 
         <!-- Points forts -->

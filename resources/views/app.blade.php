@@ -3,12 +3,15 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="app-url" content="{{ rtrim(config('app.url'), '/') }}">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- Favicon -->
+        <link rel="icon" href="{{ asset('logo.png') }}" type="image/png" />
+
+        <!-- Alpine.js -->
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
         <!-- Scripts -->
         @routes
@@ -16,6 +19,11 @@
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
+        {{-- Header boutique (fixed, style kutch.dz) — uniquement sur les pages publiques,
+             jamais sur l'admin qui a sa propre navigation (AdminLayout.vue) --}}
+        @unless(request()->is('admin') || request()->is('admin/*'))
+            @include('partials.header')
+        @endunless
         @inertia
     </body>
 </html>

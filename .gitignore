@@ -3,6 +3,17 @@
 .env
 .env.backup
 .env.production
+
+# Secrets / scripts de déploiement ponctuels (mots de passe en dur, chemins serveur)
+/mot de passe/
+/public/deploy.php
+/public/migrate.php
+/public/setup.php
+/public/index.server.php
+database_structure.sql
+
+# Archives de déploiement manuel (pas du code source)
+*.zip
 .phpactor.json
 .phpunit.result.cache
 /.fleet
