@@ -5,7 +5,9 @@ import axios from 'axios';
 
 const page = usePage();
 const settings = computed(() => page.props.settings ?? {});
-const footerImage = computed(() => page.props.footerImage);
+// Image statique (fixe), placee manuellement dans public/images/footer.jpg —
+// plus simple/fiable qu'un upload dynamique qui dependait du cache serveur.
+const footerImage = `${page.props.appUrl}/images/footer.jpg`;
 
 // Réseaux sociaux configurables depuis Admin → Paramètres (icône masquée si le
 // lien correspondant est vide, pour ne jamais pointer vers une page inexistante).
