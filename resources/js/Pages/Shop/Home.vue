@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/Shop/ProductCard.vue';
@@ -17,13 +17,17 @@ let autoplayTimer = null;
 // ── Category carousel ─────────────────────────────────────────
 const catTrack  = ref(null);
 const catIndex  = ref(0);
-const catVisible = ref(window.innerWidth < 640 ? 2 : 5);
+const catVisibleMax = ref(window.innerWidth < 640 ? 2 : 5);
+// S'il y a moins de categories que de slots visibles, on reduit les slots au
+// nombre reel de categories pour que la rangee reste centree au lieu de laisser
+// un vide a droite.
+const catVisible = computed(() => Math.min(catVisibleMax.value, props.categories?.length || catVisibleMax.value));
 
 // Nouveautés : 2 produits sur téléphone (< 768px), 3 sur les écrans plus grands.
 const newLimit = ref(window.innerWidth < 768 ? 2 : 3);
 
 function onCatResize() {
-  catVisible.value = window.innerWidth < 640 ? 2 : 5;
+  catVisibleMax.value = window.innerWidth < 640 ? 2 : 5;
   catIndex.value = 0;
   newLimit.value = window.innerWidth < 768 ? 2 : 3;
 }

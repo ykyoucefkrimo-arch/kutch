@@ -93,22 +93,27 @@
                 <ul class="flex flex-col items-center mt-4 font-medium lg:flex-row lg:space-x-12 lg:mt-0">
                     <li>
                         <a href="https://kutch.dz/projets"
+                           class="uppercase"
                            :class="scrolled ? 'nav-link-scrolled' : 'nav-link'">Projets</a>
                     </li>
                     <li>
                         <a href="https://kutch.dz/catalogue/"
+                           class="uppercase"
                            :class="scrolled ? 'nav-link-scrolled' : 'nav-link'">Mobiliers</a>
                     </li>
                     <li>
                         <a href="https://kutch.dz/boutique"
+                           class="uppercase"
                            :class="scrolled ? 'nav-link-scrolled' : 'nav-link'">Boutique</a>
                     </li>
                     <li>
                         <a href="https://kutch.dz/about/"
+                           class="uppercase"
                            :class="scrolled ? 'nav-link-scrolled' : 'nav-link'">Agence</a>
                     </li>
                     <li>
                         <a href="https://kutch.dz/actualities"
+                           class="uppercase"
                            :class="scrolled ? 'nav-link-scrolled' : 'nav-link'">Actualités</a>
                     </li>
                     <!-- Panier -->

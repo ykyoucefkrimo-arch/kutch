@@ -1,1 +1,0 @@
-import{D as e,R as t,b as n,i as r}from"./app-lgzJxrbv.js";var i=[`src`],a={__name:`ApplicationLogo`,setup(a){let o=r();return(r,a)=>(e(),n(`img`,{src:`${t(o).props.appUrl}/logo.png`,alt:`Kutch`},null,8,i))}};export{a as t};
