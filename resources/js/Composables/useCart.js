@@ -11,16 +11,20 @@ export function useCart() {
     const count = computed(() => items.value.reduce((s, i) => s + i.quantity, 0));
     const total = computed(() => items.value.reduce((s, i) => s + i.unit_price * i.quantity, 0));
 
-    function addItem(product, quantity = 1, options = null) {
-        const existing = items.value.find(i => i.product_id === product.id);
+    // `type` distingue un vrai produit du catalogue ('product') d'une entrée
+    // "nouveauté" independante ('new_arrival') — les deux ont leur propre
+    // espace d'identifiants, d'où la clé composite (type, entity.id).
+    function addItem(entity, quantity = 1, options = null, type = 'product') {
+        const existing = items.value.find(i => i.type === type && i.entity_id === entity.id);
         if (existing) {
             existing.quantity += quantity;
         } else {
             items.value.push({
-                product_id: product.id,
-                name: product.name,
-                unit_price: product.price_promo ?? product.price,
-                main_image: product.main_image,
+                type,
+                entity_id: entity.id,
+                name: entity.name,
+                unit_price: entity.price_promo ?? entity.price,
+                main_image: entity.main_image,
                 quantity,
                 options,
             });
@@ -28,15 +32,15 @@ export function useCart() {
         save();
     }
 
-    function removeItem(productId) {
-        items.value = items.value.filter(i => i.product_id !== productId);
+    function removeItem(type, entityId) {
+        items.value = items.value.filter(i => !(i.type === type && i.entity_id === entityId));
         save();
     }
 
-    function updateQty(productId, qty) {
-        const item = items.value.find(i => i.product_id === productId);
+    function updateQty(type, entityId, qty) {
+        const item = items.value.find(i => i.type === type && i.entity_id === entityId);
         if (item) {
-            if (qty <= 0) removeItem(productId);
+            if (qty <= 0) removeItem(type, entityId);
             else item.quantity = qty;
             save();
         }

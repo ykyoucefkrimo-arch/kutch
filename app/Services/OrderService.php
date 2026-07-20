@@ -1,11 +1,13 @@
 <?php
 namespace App\Services;
 
+use App\Models\NewArrival;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderLog;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
@@ -17,13 +19,24 @@ class OrderService
             $productSnapshots = [];
 
             foreach ($cartItems as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $price = $product->price_promo ?? $product->price;
+                $type = $item['type'] ?? 'product';
+                $entity = $type === 'new_arrival'
+                    ? NewArrival::find($item['id'])
+                    : Product::find($item['id']);
+
+                if (! $entity) {
+                    throw ValidationException::withMessages([
+                        'items' => 'Un article de votre panier n\'est plus disponible.',
+                    ]);
+                }
+
+                $price = $entity->price_promo ?? $entity->price;
                 $qty = (int) $item['quantity'];
                 $sub = $price * $qty;
                 $subtotal += $sub;
                 $productSnapshots[] = [
-                    'product' => $product,
+                    'type' => $type,
+                    'entity' => $entity,
                     'quantity' => $qty,
                     'unit_price' => $price,
                     'subtotal' => $sub,
@@ -56,8 +69,9 @@ class OrderService
             foreach ($productSnapshots as $snap) {
                 OrderItem::create([
                     'order_id'       => $order->id,
-                    'product_id'     => $snap['product']->id,
-                    'product_name'   => $snap['product']->name,
+                    'product_id'     => $snap['type'] === 'product' ? $snap['entity']->id : null,
+                    'new_arrival_id' => $snap['type'] === 'new_arrival' ? $snap['entity']->id : null,
+                    'product_name'   => $snap['entity']->name,
                     'unit_price'     => $snap['unit_price'],
                     'quantity'       => $snap['quantity'],
                     'subtotal'       => $snap['subtotal'],

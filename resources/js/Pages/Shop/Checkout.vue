@@ -22,7 +22,8 @@ const isEmpty = computed(() => items.value.length === 0);
 
 function submit() {
   form.items = items.value.map(i => ({
-    product_id: i.product_id,
+    type: i.type,
+    id: i.entity_id,
     quantity: i.quantity,
     options: i.options,
   }));
@@ -137,7 +138,7 @@ function submit() {
             </h2>
 
             <div class="space-y-4 mb-6">
-              <div v-for="item in items" :key="item.product_id" class="flex items-start gap-3">
+              <div v-for="item in items" :key="`${item.type}-${item.entity_id}`" class="flex items-start gap-3">
                 <div class="w-14 h-14 bg-neutral-100 overflow-hidden flex-shrink-0">
                   <img v-if="item.main_image" :src="storageUrl(item.main_image)"
                     :alt="item.name" class="w-full h-full object-cover" />

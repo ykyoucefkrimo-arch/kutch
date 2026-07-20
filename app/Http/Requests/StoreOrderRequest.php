@@ -15,7 +15,8 @@ class StoreOrderRequest extends FormRequest
             'wilaya_id'        => 'required|exists:wilayas,id',
             'commune_id'       => 'required|exists:communes,id',
             'items'            => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.type'       => 'required|in:product,new_arrival',
+            'items.*.id'         => 'required|integer',
             'items.*.quantity'   => 'required|integer|min:1|max:99',
             'items.*.options'    => 'nullable|array',
             '_hp_field'        => 'nullable|string|max:0', // honeypot: must be empty

@@ -3,11 +3,12 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/Shop/ProductCard.vue';
+import NewArrivalCard from '@/Components/Shop/NewArrivalCard.vue';
 const props = defineProps({
   heroSlides: Array,
   featuredProducts: Array,
   categories: Array,
-  newProducts: Array,
+  newArrivals: Array,
 });
 
 // ── Slider ────────────────────────────────────────────────────
@@ -138,22 +139,21 @@ onUnmounted(() => {
     </section>
 
     <!-- New Products -->
-    <section v-if="newProducts && newProducts.length" class="border-b border-neutral-200">
-      <div class="w-[90%] mx-auto py-14">
-        <div class="flex items-center mb-10 ml-[5%]">
-          <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase text-black">Nouveautés</h2>
-          <div class="h-px flex-1 bg-neutral-300 ml-8"></div>
+    <section v-if="newArrivals && newArrivals.length" class="border-b border-neutral-200 xl:px-4">
+      <div class="mx-auto px-4 xl:px-0 xl:container py-14">
+        <div class="flex items-center mb-10 pl-[5%]">
+          <h2 class="text-[11px] font-extrabold tracking-[0.15em] uppercase text-black">Nouveautés</h2>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          <ProductCard v-for="product in newProducts.slice(0, newLimit)" :key="product.id" :product="product" />
+          <NewArrivalCard v-for="item in newArrivals.slice(0, newLimit)" :key="item.id" :item="item" />
         </div>
       </div>
     </section>
 
     <!-- Categories -->
-    <section v-if="categories && categories.length">
-      <div class="w-[90%] mx-auto py-14">
-        <h2 class="text-center text-sm font-bold text-black mb-10">Que recherchez-vous ?</h2>
+    <section v-if="categories && categories.length" class="xl:px-4">
+      <div class="mx-auto px-4 xl:px-0 xl:container py-14">
+        <h2 class="text-[11px] font-extrabold tracking-[0.15em] uppercase text-black mb-10 pl-[5%]">Que recherchez-vous ?</h2>
 
         <div class="relative">
           <!-- Flèche gauche -->
@@ -204,11 +204,10 @@ onUnmounted(() => {
     </section>
 
     <!-- Featured Products -->
-    <section v-if="featuredProducts && featuredProducts.data && featuredProducts.data.length" class="border-b border-neutral-200">
-      <div class="max-w-7xl mx-auto px-6 lg:px-10 py-14">
-        <div class="flex items-center justify-between mb-10">
-          <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase text-black">Produits</h2>
-          <div class="h-px flex-1 bg-neutral-200 mx-8"></div>
+    <section v-if="featuredProducts && featuredProducts.data && featuredProducts.data.length" class="border-b border-neutral-200 xl:px-4">
+      <div class="mx-auto px-4 xl:px-0 xl:container py-14">
+        <div class="flex items-center justify-between mb-10 pl-[5%]">
+          <h2 class="text-[11px] font-extrabold tracking-[0.15em] uppercase text-black">Produits</h2>
           <Link :href="route('products.index')"
             class="text-[10px] font-bold tracking-[0.15em] uppercase text-neutral-400 hover:text-black transition-colors whitespace-nowrap">
             Tout voir →

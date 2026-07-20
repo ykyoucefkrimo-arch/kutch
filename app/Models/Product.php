@@ -9,12 +9,12 @@ class Product extends Model {
     protected $fillable = [
         'category_id','name','slug','description','short_description',
         'price','price_promo','sku','stock','in_stock','is_custom','is_active',
-        'is_featured','is_new','images','main_image','dimensions','material','color',
+        'is_featured','images','main_image','dimensions','material','color',
         'delivery_days','sort_order'
     ];
     protected $casts = [
         'in_stock'=>'boolean','is_custom'=>'boolean','is_active'=>'boolean',
-        'is_featured'=>'boolean','is_new'=>'boolean','images'=>'array','dimensions'=>'array',
+        'is_featured'=>'boolean','images'=>'array','dimensions'=>'array',
     ];
     public function category() { return $this->belongsTo(Category::class); }
     public function orderItems() { return $this->hasMany(OrderItem::class); }

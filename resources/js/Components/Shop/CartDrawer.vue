@@ -46,7 +46,7 @@ const isEmpty = computed(() => items.value.length === 0);
 
       <!-- Items -->
       <div v-else class="flex-1 overflow-y-auto divide-y divide-neutral-100">
-        <div v-for="item in items" :key="item.product_id"
+        <div v-for="item in items" :key="`${item.type}-${item.entity_id}`"
           class="flex items-start gap-4 px-6 py-4">
           <div class="w-16 h-16 bg-neutral-100 flex-shrink-0 overflow-hidden">
             <img v-if="item.main_image" :src="storageUrl(item.main_image)"
@@ -56,18 +56,18 @@ const isEmpty = computed(() => items.value.length === 0);
             <p class="text-xs font-medium text-black truncate leading-snug">{{ item.name }}</p>
             <p class="text-xs text-neutral-500 mt-0.5">{{ formatPrice(item.unit_price) }}</p>
             <div class="flex items-center gap-3 mt-2">
-              <button @click="updateQty(item.product_id, item.quantity - 1)"
+              <button @click="updateQty(item.type, item.entity_id, item.quantity - 1)"
                 class="w-6 h-6 border border-neutral-300 flex items-center justify-center text-neutral-600 hover:border-black hover:text-black transition-colors text-xs font-bold">
                 −
               </button>
               <span class="text-xs font-medium w-4 text-center">{{ item.quantity }}</span>
-              <button @click="updateQty(item.product_id, item.quantity + 1)"
+              <button @click="updateQty(item.type, item.entity_id, item.quantity + 1)"
                 class="w-6 h-6 border border-neutral-300 flex items-center justify-center text-neutral-600 hover:border-black hover:text-black transition-colors text-xs font-bold">
                 +
               </button>
             </div>
           </div>
-          <button @click="removeItem(item.product_id)" class="text-neutral-300 hover:text-black transition-colors mt-0.5">
+          <button @click="removeItem(item.type, item.entity_id)" class="text-neutral-300 hover:text-black transition-colors mt-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
             </svg>

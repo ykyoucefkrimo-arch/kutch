@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\ProductController;
+use App\Http\Controllers\Shop\NewArrivalController as ShopNewArrivalController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\ContactController;
 use App\Http\Controllers\Shop\LocationController;
@@ -25,6 +26,7 @@ Route::group([], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/produits', [ProductController::class, 'index'])->name('products.index');
     Route::get('/produits/{slug}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/nouveautes/{slug}', [ShopNewArrivalController::class, 'show'])->name('new-arrivals.show');
     Route::get('/checkout', [ShopOrderController::class, 'checkout'])->middleware('block.banned')->name('checkout');
     Route::post('/commandes', [ShopOrderController::class, 'store'])->middleware('block.banned')->name('orders.store');
     Route::get('/suivi/{orderNumber}', [ShopOrderController::class, 'track'])->name('orders.track');
@@ -84,10 +86,13 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::patch('/hero/{heroSlide}/toggle', [HeroSlideController::class, 'toggleActive'])->name('hero.toggle');
     Route::delete('/hero/{heroSlide}', [HeroSlideController::class, 'destroy'])->name('hero.destroy');
 
-    // Nouveautés (max 3 produits mis en avant sur la page d'accueil)
+    // Nouveautés (max 3 entrées independantes des produits, mises en avant sur la page d'accueil)
     Route::get('/nouveautes', [NewArrivalController::class, 'index'])->name('new-arrivals.index');
+    Route::get('/nouveautes/creer', [NewArrivalController::class, 'create'])->name('new-arrivals.create');
     Route::post('/nouveautes', [NewArrivalController::class, 'store'])->name('new-arrivals.store');
-    Route::delete('/nouveautes/{product}', [NewArrivalController::class, 'destroy'])->name('new-arrivals.destroy');
+    Route::get('/nouveautes/{newArrival}/modifier', [NewArrivalController::class, 'edit'])->name('new-arrivals.edit');
+    Route::put('/nouveautes/{newArrival}', [NewArrivalController::class, 'update'])->name('new-arrivals.update');
+    Route::delete('/nouveautes/{newArrival}', [NewArrivalController::class, 'destroy'])->name('new-arrivals.destroy');
 });
 
 require __DIR__.'/auth.php';
